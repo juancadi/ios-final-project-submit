@@ -35,13 +35,12 @@ class ScanViewController: UIViewController, AVCaptureMetadataOutputObjectsDelega
             
             let input = try AVCaptureDeviceInput(device: videoDevice)
             
-            let qrMetadata = AVCaptureMetadataOutput()
-            qrMetadata.setMetadataObjectsDelegate(self, queue: dispatch_get_main_queue())
-            qrMetadata.metadataObjectTypes = [AVMetadataObjectTypeQRCode]
-            
             qrSession = AVCaptureSession()
             qrSession?.addInput(input)
+            let qrMetadata = AVCaptureMetadataOutput()
             qrSession?.addOutput(qrMetadata)
+            qrMetadata.setMetadataObjectsDelegate(self, queue: dispatch_get_main_queue())
+            qrMetadata.metadataObjectTypes = [AVMetadataObjectTypeQRCode]
             
             qrLayer = AVCaptureVideoPreviewLayer(session: qrSession!)
             qrLayer?.videoGravity = AVLayerVideoGravityResizeAspectFill
@@ -81,9 +80,14 @@ class ScanViewController: UIViewController, AVCaptureMetadataOutputObjectsDelega
             
             if objMetadata.stringValue != nil {
                 
+                print("ScanResult: \(objMetadata.stringValue)")
+                
                 self.qrUrls = objMetadata.stringValue
                 
+                self.qrSession?.stopRunning()
+                
                 let scanResultViewController = storyboard?.instantiateViewControllerWithIdentifier("scan-result-vc")
+                
                 self.navigationController?.pushViewController(scanResultViewController!, animated: true)
             }
         }
@@ -108,7 +112,7 @@ class ScanViewController: UIViewController, AVCaptureMetadataOutputObjectsDelega
         
         let destinyViewController = segue.destinationViewController as! ScanResultViewController
         self.qrSession?.stopRunning()
-        destinyViewController.urlFromQR = self.qrUrls
+        destinyViewController.urlFromQR = self.qrUrls!
     }
     
 

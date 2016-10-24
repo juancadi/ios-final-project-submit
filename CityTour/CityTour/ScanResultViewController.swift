@@ -14,7 +14,7 @@ class ScanResultViewController: UIViewController {
     @IBOutlet weak var txtScannedUrl: UITextField!
     @IBOutlet weak var webScannedUrl: UIWebView!
 
-    var urlFromQR: String?
+    var urlFromQR = "https://www.coursera.org"
     
     
     override func viewDidLoad() {
@@ -22,8 +22,11 @@ class ScanResultViewController: UIViewController {
         
         // Do any additional setup after loading the view.
         
-        txtScannedUrl?.text = urlFromQR!
-        let url = NSURL(string: urlFromQR!)
+        txtScannedUrl?.text = urlFromQR
+        
+        print("Url received: \(urlFromQR)")
+        
+        let url = NSURL(string: urlFromQR)
         let qrWebRequest = NSURLRequest(URL: url!)
         webScannedUrl.loadRequest(qrWebRequest)
         

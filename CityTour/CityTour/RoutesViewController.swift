@@ -9,8 +9,9 @@
 import UIKit
 import MapKit
 import CoreData
+import CoreLocation
 
-class RoutesViewController: UIViewController, MKMapViewDelegate, UITableViewDelegate, UITableViewDataSource, CLLocationManagerDelegate, UIImagePickerControllerDelegate, UINavigationControllerDelegate {
+class RoutesViewController: UIViewController, MKMapViewDelegate, UITableViewDelegate, UITableViewDataSource, CLLocationManagerDelegate, UIImagePickerControllerDelegate, UINavigationControllerDelegate, ARDataSource{
 
     
     @IBOutlet weak var routesMap: MKMapView!
@@ -256,6 +257,23 @@ class RoutesViewController: UIViewController, MKMapViewDelegate, UITableViewDele
     
     
     @IBAction func showAR(sender: AnyObject) {
+        
+        let savedPoints = self.getRoutePoints(tblRoutesItems![self.selectedRouteIndex].name!)
+        
+        let pointsToShow = self.getARAnnotations(savedPoints)
+        
+        var arViewController = ARViewController()
+        arViewController.debugEnabled = true
+        arViewController.dataSource = self
+        arViewController.maxDistance = 0
+        arViewController.maxVisibleAnnotations = 100
+        arViewController.maxVerticalLevel = 5
+        arViewController.headingSmoothingFactor = 0.05
+        arViewController.trackingManager.userDistanceFilter = 25
+        arViewController.trackingManager.reloadDistanceFilter = 75
+        
+        arViewController.setAnnotations(pointsToShow)
+        self.presentViewController(arViewController, animated: true, completion: nil)
         
         
     }
@@ -683,6 +701,37 @@ class RoutesViewController: UIViewController, MKMapViewDelegate, UITableViewDele
         }
         
     }
+    
+    /******* FUNCIONALIDADES REALIDAD AUMENTADA *********/
+    
+    func ar(arAnnotationView: ARViewController, viewForAnnotation: ARAnnotation) -> ARAnnotationView{
+        
+        let viewAR = TestAnnotationView()
+        viewAR.backgroundColor = UIColor.blackColor().colorWithAlphaComponent(0.5)
+        viewAR.frame = CGRect(x: 0, y: 0, width: 150, height: 60)
+        
+        return viewAR
+        
+    }
+    
+    private func getARAnnotations(points:[Point]) -> Array<ARAnnotation>
+    {
+        
+        var annotations: [ARAnnotation] = []
+        
+        for point in points
+        {
+            let annotation = ARAnnotation()
+            annotation.location = CLLocation(latitude: Double(point.latitude!), longitude: Double(point.longitude!))
+            annotation.title = point.name
+            annotations.append(annotation)
+        }
+        
+        return annotations
+        
+    }
+    
+    
     
 
     /*
